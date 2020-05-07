@@ -1,0 +1,29 @@
+.itemrow td, .headtr td{
+	border-right:solid;	border-width: 1px;
+}
+.headtr td, .foottr td {
+	border: solid;border-width: 1px; background-color: grey; height: 30px;
+}
+.partydetails td{
+	border-right:solid;border-width: 1px; 
+}
+.partyhead {
+	border-bottom:solid;border-width: 1px; 
+	border-top:solid;border-width: 1px; 
+}
+
+
+.srTD{
+	width: 10px
+}
+.hsnTD{ width: 80px; }
+.pcsTD{ width: 50px; }
+.rateTD{ width: 80px; }
+.blackrow td{
+	height: 30px;
+}
+.invheadtxt{
+}
+.foottr{
+
+}

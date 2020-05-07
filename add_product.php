@@ -105,7 +105,7 @@
                           <div class="form-group row">
                             <label for="price" class="col-sm-2 col-form-label">Price</label>
                             <div class="col-sm-10">
-                              <input type="number" class="form-control" name="price" id="price" required="true" placeholder="Price">
+                              <input type="number" step="0.01"  class="form-control" name="price" id="price" required="true" placeholder="Price">
                             </div>
                           </div>
                           <div class="form-group row">

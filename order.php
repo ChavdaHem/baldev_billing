@@ -32,6 +32,10 @@
           margin-bottom: 10px;
           font-weight: bold;
       }
+      .pricedetails{
+        font-size: 11px;
+        font-weight: bold;
+      }
   </style>
 </head>
 
@@ -98,7 +102,7 @@
                         <div class="text-center">
                           <h1 class="h4 text-gray-900 mb-4">New Product!</h1>
                         </div>
-                        <form method="post">
+                        <form method="post" action="postorder.php">
                           <div class="form-group row">
                             <label for="party_name" class="col-sm-2 col-form-label">Party Name</label>
                             <div class="col-sm-10">
@@ -143,7 +147,7 @@
                           </div>
                           <button data-toggle="modal" data-target="#productModal" type="button" id="addNewProduct">Add New</button>
                           <div class="row head_row">
-                            <div class="col-4">Name Of Items</div>
+                            <div class="col-3">Name Of Items</div>
                             <div class="col-2">Qty</div>
                             <div class="col-2">Rate</div>
                             <div class="col-1">CGST</div>
@@ -155,13 +159,13 @@
                              
                           </div>
                           <div class="row total_row">
-                            <div class="col-4">Total</div>
+                            <div class="col-3">Total</div>
                             <div class="col-2">Qty</div>
-                            <div class="col-2"></div>
-                            <div class="col-1">0.0</div>
-                            <div class="col-1">0.0</div>
-                            <div class="col-1">0.0</div>
-                            <div class="col-1">Act</div>
+                            <div class="col-2"><span class="totalAmt">0</span><input type="hidden" name="totalAmtHD" id="totalAmtHD"></div>
+                            <div class="col-1"><span class="totalCgstAmt">0</span><input type="hidden" name="totalCgstAmtHD" id="totalCgstAmtHD"></div>
+                            <div class="col-1"><span class="totalSgstAmt">0</span><input type="hidden" name="totalSgstAmtHD" id="totalSgstAmtHD"></div>
+                            <div class="col-2"><span class="finalTotal">0</span><input type="hidden" name="finalTotalHD" id="finalTotalHD"></div>
+                            <div class="col-1"></div>
                           </div>
 
                           <button type="submit" class="btn btn-primary btn-user btn-block">Save</button>
@@ -236,6 +240,7 @@
     </div>
   </div>
 
+
   <!-- Bootstrap core JavaScript-->
   <script src="vendor/jquery/jquery.min.js"></script>
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -272,23 +277,124 @@
       }
     });
     
+    $(document).on("click, blur", ".qty, .sale_rate, .cgst, .sgst", function(e){
+      var parentRow = $(this).closest(".item_row");
+      countRowAmt(parentRow);
+    });
+
+    $(document).on("click", ".removeItem", function(e){
+      $(this).closest(".item_row").remove();
+      countFianlTotal();
+    })
+    
+    function countRowAmt(parentRow){
+      var qty = parentRow.find('.qty').val();
+      var sale_rate = parentRow.find('.sale_rate').val();
+      var cgst = parentRow.find('.cgst').val();
+      var sgst = parentRow.find('.sgst').val();
+      var amt = parseInt(qty) * parseFloat(sale_rate);
+      var cgstAmt = (amt * parseFloat(cgst)) / 100;
+      var sgstAmt = (amt * parseFloat(sgst)) / 100;
+      var finalRowAmt = amt + cgstAmt + sgstAmt;
+
+      finalRowAmt = finalRowAmt.toFixed(2);
+      cgstAmt = cgstAmt.toFixed(2);
+      sgstAmt = sgstAmt.toFixed(2);
+      amt = amt.toFixed(2);
+
+
+      parentRow.find(".row_amt").text(amt);
+      parentRow.find(".row_cgstAmt").text(cgstAmt);
+      parentRow.find(".row_sgstAmt").text(sgstAmt);
+      parentRow.find(".row_finalAmt").text(finalRowAmt);
+
+      parentRow.find(".row_amtHD").val(amt);
+      parentRow.find(".row_cgstAmtHD").val(cgstAmt);
+      parentRow.find(".row_sgstAmtHD").val(sgstAmt);
+      parentRow.find(".row_finalAmtHD").val(finalRowAmt);
+      console.log({qty, sale_rate, cgst, sgst, amt, cgstAmt, sgstAmt, finalRowAmt});
+      countFianlTotal();
+    }
+
+    function getTotalSaleAmt(){
+      var totalSaleRate = 0;
+      $(".sale_rate").each(function(i,e){
+        console.log($(this),i,e);
+        var qty = $(this).closest('.item_row').find(".qty").val();
+
+        totalSaleRate += (parseFloat($(this).val()) * qty);
+      });
+      totalSaleRate = totalSaleRate.toFixed(2);
+      return totalSaleRate;
+    }
+
+    function getTotalCGSTAmt(){
+      var totalCGSTAmt = 0;
+      $(".row_cgstAmt").each(function(i,e){
+        console.log($(this),i,e);
+        totalCGSTAmt += parseFloat($(this).text());
+      });
+      totalCGSTAmt = totalCGSTAmt.toFixed(2);
+      return totalCGSTAmt;
+    }
+
+    function getTotalSGSTAmt(){
+      var totalSGSTAmt = 0;
+      $(".row_sgstAmt").each(function(i,e){
+        console.log($(this),i,e);
+        totalSGSTAmt += parseFloat($(this).text());
+      });
+      totalSGSTAmt = totalSGSTAmt.toFixed(2);
+      return totalSGSTAmt;
+    }
+
+    function getTotalFinalAmt(){
+      var totalFinalAmt = 0;
+      $(".row_finalAmt").each(function(i,e){
+        console.log($(this),i,e);
+        totalFinalAmt += parseFloat($(this).text());
+      });
+      totalFinalAmt = totalFinalAmt.toFixed(2);
+      return totalFinalAmt;
+    }
+
+
+    function countFianlTotal(){
+      var totalAmt = getTotalSaleAmt();
+      var totalCgstAmt = getTotalCGSTAmt();
+      var totalSgstAmt = getTotalSGSTAmt();
+      var finalTotal = getTotalFinalAmt();
+      $(".totalAmt").text(totalAmt);
+      $(".totalCgstAmt").text(totalCgstAmt);
+      $(".totalSgstAmt").text(totalSgstAmt);
+      $(".finalTotal").text(finalTotal);
+
+      $("#totalAmtHD").val(totalAmt);
+      $("#totalCgstAmtHD").val(totalCgstAmt);
+      $("#totalSgstAmtHD").val(totalSgstAmt);
+      $("#finalTotalHD").val(finalTotal);
+    }
+
     function addNewProduct(param){
-      console.log(param);
-      if($(".row.item_row[product_id="+param.product_id+"]")){
+      console.log($(".row.item_row[product_id="+param.product_id+"]").length);
+      if($(".row.item_row[product_id="+param.product_id+"]").length > 0){
         console.log($(".row.item_row[product_id="+param.product_id+"]"));
+        $(".row.item_row[product_id="+param.product_id+"]").find('.qty').focus();
         return false;
       }
       var item_row_html = '';
       item_row_html += '<div class="row item_row" product_id="'+param.product_id+'">';
-      item_row_html += '<div class="col-4">'+param.product_name+'</div>';
+      item_row_html += '<div class="col-3">'+param.product_name+'<input type="hidden" name="product[]" value="'+param.product_name+'"> <input type="hidden" name="hsn[]" value="'+param.hsn+'"></div>';
       item_row_html += '<div class="col-2"><input type="text" value="1" name="qty[]" class="qty"></div>';
       item_row_html += '<div class="col-2"><input type="text" value="'+param.price+'" name="sale_rate[]" class="sale_rate"></div>';
       item_row_html += '<div class="col-1"><input type="text" value="0" name="cgst[]" class="cgst"></div>';
       item_row_html += '<div class="col-1"><input type="text" value="0" name="sgst[]" class="sgst"></div>';
-      item_row_html += '<div class="col-1"><span class="row_amt"></span></div>';
-      item_row_html += '<div class="col-1"><button>D</button></div>';
+      item_row_html += '<div class="col-2 pricedetails"><span class="row_amt">0</span><br><input type="hidden" class="row_amtHD" name="amtHD[]" value="" ><input type="hidden" class="row_cgstAmtHD" name="cgstAmtHD[]" value="" > <input type="hidden" class="row_sgstAmtHD" name="sgstAmtHD[]" value="" > <input type="hidden" class="row_finalAmtHD" name="finalAmtHD[]" value="" ><span  class="row_cgstAmt">0</span><br><span class="row_sgstAmt">0</span><br><span class="row_finalAmt">0</span></div>';
+      item_row_html += '<div class="col-1"><button class="removeItem">X</button></div>';
       item_row_html += '</div>';
       $('.items_row').append(item_row_html);
+      countFianlTotal();
+      countRowAmt($(".item_row:last"));
     }
     $('.select2').select2();
   </script>
